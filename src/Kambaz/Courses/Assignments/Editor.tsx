@@ -1,6 +1,11 @@
 import { Button } from "react-bootstrap";
+import { useParams } from "react-router";
+import * as db from "../../Database";
 
 export default function Editor() {
+    const { aid } = useParams(); // Get assignment ID from URL params
+    const assignment = db.assignments.find(a => a._id === aid) || { title: "", course: "" };
+
     return (
         <div className="container mt-4 p-5">
             <div className="mb-4">
@@ -9,7 +14,7 @@ export default function Editor() {
                         <label htmlFor="name" className="form-label">Assignment Name</label>
                     </div>
                     <div className="col-md-12">
-                        <input id="name" value="A1 - ENV + HTML" type="text" className="form-control" />
+                        <input id="name" value={assignment.title} type="text" className="form-control" readOnly />
                     </div>
                 </div>
             </div>
@@ -17,10 +22,8 @@ export default function Editor() {
             <div className="mb-4">
                 <div className="row align-items-start">
                     <div className="col-md-12">
-                        <textarea id="description" className="form-control" rows={6}>
-                            The assignment is available online. Submit a link to the landing page of your Web application running on Netlify. The landing page should include the following:
-                            Your full name and section, links to each of the lab assignments, link to the Kanbas application, links to all relevant source code repositories.
-                            The Kanbas application should include a link to navigate back to the landing page.
+                        <textarea id="description" className="form-control" rows={6} readOnly>
+                            {`This assignment is part of course ${assignment.course}. Please refer to the course materials for specific instructions.`}
                         </textarea>
                     </div>
                 </div>
@@ -134,7 +137,6 @@ export default function Editor() {
             </div>
 
             <hr />
-
             <div className="d-flex justify-content-end mt-4">
                 <Button id="cancel" variant="secondary" className="me-2">Cancel</Button>
                 <Button id="save" variant="danger">Save</Button>
