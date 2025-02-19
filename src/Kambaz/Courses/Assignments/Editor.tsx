@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import * as db from "../../Database";
 
 export default function Editor() {
-    const { aid } = useParams(); // Get assignment ID from URL params
+    const { aid } = useParams();
     const assignment = db.assignments.find(a => a._id === aid) || { title: "", course: "" };
 
     return (

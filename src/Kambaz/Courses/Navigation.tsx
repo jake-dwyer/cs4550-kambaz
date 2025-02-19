@@ -1,6 +1,5 @@
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { ListGroup } from 'react-bootstrap';
-import * as db from "../Database";
 
 export default function CourseNavigation() {
     const { pathname } = useLocation();
