@@ -35,7 +35,7 @@ export default function KambazNavigation() {
                 href="https://www.northeastern.edu/"
                 className="bg-black border-0 text-center"
                 id="wd-neu-link">
-                <img src="/public/images/NEU.png" width="75px" />
+                <img src="/images/NEU.png" width="75px" />
             </ListGroup.Item>
             <ListGroup.Item as={Link} to="/Kambaz/Account" className={`text-center border-0 bg-black
       ${pathname.includes("Account") ?
