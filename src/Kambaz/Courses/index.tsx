@@ -14,23 +14,30 @@ export default function Courses() {
     const { cid } = useParams();
     const course = courses.find((course) => course._id === cid);
     const { pathname } = useLocation();
-    const [showDrawer, setShowDrawer] = useState(false); // Controls drawer visibility
+    const [showDrawer, setShowDrawer] = useState(false); 
+    const [showSidebar, setShowSidebar] = useState(true);
+
+    const handleToggle = () => {
+        if (window.innerWidth < 768) {
+            setShowDrawer(true);
+        } else {
+            setShowSidebar(!showSidebar);
+        }
+    };
 
     return (
         <div id="wd-courses">
-            {/* Header with Red Hamburger Icon */}
             <h2 className="text-danger">
-                <FaAlignJustify 
-                    className="text-danger me-3 fs-4 d-md-none" 
-                    onClick={() => setShowDrawer(true)} 
+                <FaAlignJustify
+                    className="text-danger me-3 fs-4"
+                    onClick={handleToggle}
                     style={{ cursor: "pointer" }}
                 />
                 {course && course.name} &gt; {pathname.split("/")[4]}
             </h2>
             <hr />
 
-            {/* Offcanvas Sidebar Drawer */}
-            <Offcanvas show={showDrawer} onHide={() => setShowDrawer(false)} placement="start" className="w-100">
+            <Offcanvas show={showDrawer} onHide={() => setShowDrawer(false)} placement="start">
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title>Course Navigation</Offcanvas.Title>
                 </Offcanvas.Header>
@@ -40,12 +47,12 @@ export default function Courses() {
             </Offcanvas>
 
             <div className="d-flex">
-                {/* Sidebar Navigation for Medium+ Screens */}
-                <div className="d-none d-md-block">
-                    <CoursesNavigation />
-                </div>
+                {showSidebar && (
+                    <div className="d-none d-md-block" style={{ width: "250px" }}>
+                        <CoursesNavigation />
+                    </div>
+                )}
 
-                {/* Main Content */}
                 <div className="flex-fill">
                     <Routes>
                         <Route path="/" element={<Navigate to="Home" />} />
