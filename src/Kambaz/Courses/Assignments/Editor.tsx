@@ -1,32 +1,43 @@
-import { useState } from "react";
+import { Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router";
-import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { addAssignment, updateAssignment } from "./reducer";
-import { Button, FormControl } from "react-bootstrap";
+import { v4 as uuidv4 } from "uuid";
 
-export default function AssignmentEditor() {
+export default function Editor() {
     const { cid, aid } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+    const assignmentsState = useSelector((state: any) => state.assignmentReducer);
 
-    const existingAssignment = assignments.find(a => a._id === aid);
-    const isEditing = !!existingAssignment;
+    const existingAssignment = assignmentsState.assignments.find((a: any) => a._id === aid);
 
-    const [assignment, setAssignment] = useState(
+    const [assignment, setAssignment] = useState<any>(
         existingAssignment || {
+            _id: uuidv4(),
             title: "",
-            description: "",
+            course: cid,
             points: 100,
+            group: "ASSIGNMENTS",
+            displayGrade: "PERCENTAGE",
+            submissionType: "ONLINE",
+            options: {
+                textEntry: false,
+                websiteURL: true,
+                mediaRecordings: false,
+                studentAnnotation: false,
+                fileUploads: false
+            },
+            assignTo: "Everyone",
             dueDate: "2024-05-13",
             availableFrom: "2024-05-06",
-            availableUntil: "2024-05-20",
-            course: cid,
+            availableUntil: "2024-05-20"
         }
     );
 
     const handleSave = () => {
-        if (isEditing) {
+        if (existingAssignment) {
             dispatch(updateAssignment(assignment));
         } else {
             dispatch(addAssignment(assignment));
@@ -36,47 +47,172 @@ export default function AssignmentEditor() {
 
     return (
         <div className="container mt-4 p-5">
-            <h3>{isEditing ? "Edit Assignment" : "Create Assignment"}</h3>
-            <div className="mb-3">
-                <label className="form-label">Assignment Name</label>
-                <FormControl value={assignment.title}
-                    onChange={(e) => setAssignment({ ...assignment, title: e.target.value })} />
-            </div>
-            <div className="mb-3">
-                <label className="form-label">Description</label>
-                <textarea className="form-control" rows={4}
-                    value={assignment.description}
-                    onChange={(e) => setAssignment({ ...assignment, description: e.target.value })} />
-            </div>
-            <div className="mb-3">
-                <label className="form-label">Points</label>
-                <FormControl type="number"
-                    value={assignment.points}
-                    onChange={(e) => setAssignment({ ...assignment, points: Number(e.target.value) })} />
-            </div>
-            <div className="d-flex justify-content-between">
-                <div>
-                    <label className="form-label">Due Date</label>
-                    <FormControl type="date"
-                        value={assignment.dueDate}
-                        onChange={(e) => setAssignment({ ...assignment, dueDate: e.target.value })} />
-                </div>
-                <div>
-                    <label className="form-label">Available From</label>
-                    <FormControl type="date"
-                        value={assignment.availableFrom}
-                        onChange={(e) => setAssignment({ ...assignment, availableFrom: e.target.value })} />
-                </div>
-                <div>
-                    <label className="form-label">Available Until</label>
-                    <FormControl type="date"
-                        value={assignment.availableUntil}
-                        onChange={(e) => setAssignment({ ...assignment, availableUntil: e.target.value })} />
+            <div className="mb-4">
+                <div className="row align-items-center">
+                    <div>
+                        <label htmlFor="name" className="form-label">Assignment Name</label>
+                    </div>
+                    <div className="col-md-12">
+                        <input
+                            id="name"
+                            value={assignment.title}
+                            type="text"
+                            className="form-control"
+                            onChange={(e) => setAssignment({ ...assignment, title: e.target.value })}
+                        />
+                    </div>
                 </div>
             </div>
+
+            <div className="mb-4">
+                <div className="row align-items-start">
+                    <div className="col-md-12">
+                        <textarea
+                            id="description"
+                            className="form-control"
+                            rows={6}
+                            value={assignment.description || `This assignment is part of course ${assignment.course}. Please refer to the course materials for specific instructions.`}
+                            onChange={(e) => setAssignment({ ...assignment, description: e.target.value })}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Points, Assignment Group, Display Grade as */}
+            <div className="mb-4">
+                <div className="row align-items-center mb-3">
+                    <div className="col-md-4 d-flex justify-content-end">
+                        <label htmlFor="points" className="form-label">Points</label>
+                    </div>
+                    <div className="col-md-8">
+                        <input
+                            id="points"
+                            value={assignment.points}
+                            type="number"
+                            className="form-control"
+                            onChange={(e) => setAssignment({ ...assignment, points: e.target.value })}
+                        />
+                    </div>
+                </div>
+                <div className="row align-items-center mb-3">
+                    <div className="col-md-4 d-flex justify-content-end">
+                        <label htmlFor="group" className="form-label">Assignment Group</label>
+                    </div>
+                    <div className="col-md-8">
+                        <select
+                            id="group"
+                            className="form-select"
+                            value={assignment.group}
+                            onChange={(e) => setAssignment({ ...assignment, group: e.target.value })}
+                        >
+                            <option value="NONE">None</option>
+                            <option value="ASSIGNMENTS">Assignments</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="row align-items-center">
+                    <div className="col-md-4 d-flex justify-content-end">
+                        <label htmlFor="display-grade" className="form-label">Display Grade as</label>
+                    </div>
+                    <div className="col-md-8">
+                        <select
+                            id="display-grade"
+                            className="form-select"
+                            value={assignment.displayGrade}
+                            onChange={(e) => setAssignment({ ...assignment, displayGrade: e.target.value })}
+                        >
+                            <option value="FRACTION">Fraction</option>
+                            <option value="PERCENTAGE">Percentage</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {/* Submission Type */}
+            <div className="mb-4">
+                <div className="row align-items-top">
+                    <div className="col-md-4 d-flex justify-content-end">
+                        <label htmlFor="submission-type" className="form-label">Submission Type</label>
+                    </div>
+                    <div className="col-md-8">
+                        <div className="border border-1 border-secondary-subtle rounded-2 p-3">
+                            <select
+                                id="submission-type"
+                                className="form-select"
+                                value={assignment.submissionType}
+                                onChange={(e) => setAssignment({ ...assignment, submissionType: e.target.value })}
+                            >
+                                <option value="PAPER">Paper</option>
+                                <option value="ONLINE">Online</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Assign Section */}
+            <div className="mb-4">
+                <div className="row align-items-top">
+                    <div className="col-md-4 d-flex justify-content-end">
+                        <label className="form-label">Assign</label>
+                    </div>
+                    <div className="col-md-8">
+                        <div className="border border-1 border-secondary-subtle rounded-2 p-3">
+                            <div className="row g-3">
+                                <div className="col-md-12">
+                                    <label htmlFor="assign-to" className="form-label">Assign to</label>
+                                    <input
+                                        id="assign-to"
+                                        value={assignment.assignTo}
+                                        type="text"
+                                        className="form-control"
+                                        onChange={(e) => setAssignment({ ...assignment, assignTo: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-md-12">
+                                    <label htmlFor="due-date" className="form-label">Due</label>
+                                    <input
+                                        id="due-date"
+                                        value={assignment.dueDate}
+                                        type="date"
+                                        className="form-control"
+                                        onChange={(e) => setAssignment({ ...assignment, dueDate: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-md-6">
+                                    <label htmlFor="available-from" className="form-label">Available from</label>
+                                    <input
+                                        id="available-from"
+                                        value={assignment.availableFrom}
+                                        type="date"
+                                        className="form-control"
+                                        onChange={(e) => setAssignment({ ...assignment, availableFrom: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-md-6">
+                                    <label htmlFor="available-until" className="form-label">Until</label>
+                                    <input
+                                        id="available-until"
+                                        value={assignment.availableUntil}
+                                        type="date"
+                                        className="form-control"
+                                        onChange={(e) => setAssignment({ ...assignment, availableUntil: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
             <div className="d-flex justify-content-end mt-4">
-                <Button variant="secondary" onClick={() => navigate(-1)}>Cancel</Button>
-                <Button variant="danger" className="ms-2" onClick={handleSave}>Save</Button>
+                <Button id="cancel" variant="secondary" className="me-2" onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments`)}>
+                    Cancel
+                </Button>
+                <Button id="save" variant="danger" onClick={handleSave}>
+                    Save
+                </Button>
             </div>
         </div>
     );
