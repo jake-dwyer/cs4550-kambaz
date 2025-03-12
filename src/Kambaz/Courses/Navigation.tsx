@@ -18,13 +18,16 @@ export default function CourseNavigation() {
 
     return (
         <ListGroup className="wd fs-5 rounded-0" id="course-navigation">
-            {links.map((link) => (
-                <ListGroup.Item key={link.path} as={Link}
-                    to={link.path}
-                    className={`text-danger border border-0 ${pathname.includes(link.label) ? "active" : "text-danger border border-0"}`}>
-                    {link.label}
-                </ListGroup.Item>
-            ))}
+            {links.map((link) => {
+                const isActive = pathname.startsWith(link.path);
+                return (
+                    <ListGroup.Item key={link.path} as={Link}
+                        to={link.path}
+                        className={`text-danger border-0 ${isActive ? "active bg-danger text-white" : ""}`}>
+                        {link.label}
+                    </ListGroup.Item>
+                );
+            })}
         </ListGroup>
     );
 }

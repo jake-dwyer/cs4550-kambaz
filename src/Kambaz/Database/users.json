@@ -124,5 +124,19 @@
     "section": "S101",
     "lastActivity": "1852-11-27",
     "totalActivity": "21:32:43"
-  }
+  },
+  {
+    "_id": "999",
+    "username": "jake",
+    "password": "999",
+    "firstName": "jake",
+    "lastName": "dwyer",
+    "email": "jakedwyer@lovelace.com",
+    "dob": "1815-12-15",
+    "role": "FACULTY",
+    "loginId": "002143660S",
+    "section": "S101",
+    "lastActivity": "1852-11-27",
+    "totalActivity": "21:32:43"
+}
 ]

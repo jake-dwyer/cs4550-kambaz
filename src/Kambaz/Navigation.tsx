@@ -13,7 +13,7 @@ export default function KambazNavigation() {
             icon: AiOutlineDashboard
         },
         {
-            label: "Courses", path: "/Kambaz/Dashboard",
+            label: "Courses", path: "/Kambaz/Courses",
             icon: LiaBookSolid
         },
         {

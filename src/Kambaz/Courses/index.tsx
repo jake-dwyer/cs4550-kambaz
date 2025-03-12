@@ -1,10 +1,11 @@
+import { useSelector } from "react-redux";
+import { RootState } from "../store";  // Ensure correct path to your store file
 import { useState } from "react";
 import { Navigate, Route, Routes, useParams, useLocation } from "react-router";
 import { FaAlignJustify } from "react-icons/fa";
 import { Offcanvas } from "react-bootstrap";
 import CoursesNavigation from "./Navigation";
 import Modules from "./Modules";
-import { courses } from "../Database";
 import Home from "./Home";
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
@@ -12,9 +13,22 @@ import PeopleTable from "./People/Table";
 
 export default function Courses() {
     const { cid } = useParams();
+    const courses = useSelector((state: RootState) => state.coursesReducer?.courses || []);
+
+    // Ensure courses array is loaded before accessing it
+    if (!courses.length) {
+        return <h2 className="text-danger">Loading Courses...</h2>;
+    }
+
     const course = courses.find((course) => course._id === cid);
+
+    // If the course doesn't exist, redirect to Dashboard
+    if (!course) {
+        return <Navigate to="/Kambaz/Dashboard" />;
+    }
+
     const { pathname } = useLocation();
-    const [showDrawer, setShowDrawer] = useState(false); 
+    const [showDrawer, setShowDrawer] = useState(false);
     const [showSidebar, setShowSidebar] = useState(true);
 
     const handleToggle = () => {
@@ -33,7 +47,7 @@ export default function Courses() {
                     onClick={handleToggle}
                     style={{ cursor: "pointer" }}
                 />
-                {course && course.name} &gt; {pathname.split("/")[4]}
+                {course.name} &gt; {pathname.split("/")[4]}
             </h2>
             <hr />
 

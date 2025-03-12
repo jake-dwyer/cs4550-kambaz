@@ -25,7 +25,6 @@ export default function DestructingImports() {
                             {Matematica.subtract(5, 1)}</td>
                         <td>subtract(5, 1) = {subtract(5, 1)}</td>
                     </tr>
-
                 </tbody>
             </table>
             <hr />

@@ -1,19 +1,20 @@
-import Options from "./AssignmentOptions";
+import { ListGroup } from "react-bootstrap";
+import { useSelector, useDispatch } from "react-redux";
+import { useParams, useNavigate } from "react-router";
+import { deleteAssignment } from "./reducer";
+import AssignmentControlButtons from "./AssignmentControlButtons";
 import { BsGripVertical } from "react-icons/bs";
 import { RxTriangleDown } from "react-icons/rx";
 import { LuNewspaper } from "react-icons/lu";
-import AssignmentControlButtons from "./AssignmentControlButtons";
-import LessonControlButtons from "../../LessonControlButtons";
-import { ListGroup } from "react-bootstrap";
-import { useParams } from "react-router";
-import * as db from "../../Database";
 
 export default function Assignments() {
     const { cid } = useParams();
-    const assignments = db.assignments;
+    const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     return (
         <div id="assignments" className="d-flex flex-column p-5 pt-2">
-            <Options />
             <ListGroup className="rounded-0 mt-4">
                 <ListGroup.Item className="wd-module p-0 mb-5 fs-5 border-gray">
                     <div className="wd-title p-3 ps-2 bg-secondary">
@@ -26,26 +27,23 @@ export default function Assignments() {
                         {assignments
                             .filter((assignment) => assignment.course === cid)
                             .map((assignment) => (
-                                <ListGroup.Item key={assignment._id} className="wd-assignment p-3 ps-1">
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div className="d-flex align-items-center flex-start">
-                                            <BsGripVertical className="me-2 fs-3" />
-                                            <LuNewspaper style={{ stroke: "green" }} className="me-4" />
-                                        </div>
-                                        <div className="text-start me-auto">
-                                            <h5 className="mb-1">
-                                                <a className="text-dark text-decoration-none" href={`#/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}>
-                                                    <b>{assignment.title}</b>
-                                                </a>
-                                            </h5>
-                                            <small className="text-danger">Multiple Modules </small>
-                                            <small className="text-muted"> | <b>Not available until</b> May 6 at 12:00am | </small> <br />
-                                            <small className="text-muted"><b>Due</b> May 13 at 11:59pm | 100 pts</small>
-                                        </div>
-                                        <div className="d-flex align-items-center flex-end">
-                                            <LessonControlButtons />
-                                        </div>
+                                <ListGroup.Item key={assignment._id} className="wd-assignment p-3 ps-1 d-flex justify-content-between">
+                                    <div>
+                                        <BsGripVertical className="me-2 fs-3" />
+                                        <LuNewspaper style={{ stroke: "green" }} className="me-4" />
+                                        <a className="text-dark text-decoration-none"
+                                           href={`#/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}>
+                                            <b>{assignment.title}</b>
+                                        </a>
                                     </div>
+                                    <button className="btn btn-danger btn-sm"
+                                        onClick={() => {
+                                            if (window.confirm("Are you sure you want to delete this assignment?")) {
+                                                dispatch(deleteAssignment(assignment._id));
+                                            }
+                                        }}>
+                                        Delete
+                                    </button>
                                 </ListGroup.Item>
                             ))}
                     </ListGroup>
