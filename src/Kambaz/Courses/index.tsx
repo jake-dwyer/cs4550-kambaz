@@ -15,14 +15,12 @@ export default function Courses() {
     const { cid } = useParams();
     const courses = useSelector((state: RootState) => state.coursesReducer?.courses || []);
 
-    // Ensure courses array is loaded before accessing it
     if (!courses.length) {
         return <h2 className="text-danger">Loading Courses...</h2>;
     }
 
     const course = courses.find((course) => course._id === cid);
 
-    // If the course doesn't exist, redirect to Dashboard
     if (!course) {
         return <Navigate to="/Kambaz/Dashboard" />;
     }
