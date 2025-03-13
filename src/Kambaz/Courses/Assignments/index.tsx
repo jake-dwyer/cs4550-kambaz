@@ -13,7 +13,6 @@ export default function Assignments() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const canEdit = currentUser && (currentUser.role === "ADMIN" || currentUser.role === "FACULTY");
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   if (!assignmentsState || !assignmentsState.assignments) {
     return <h2>Error loading assignments</h2>;
