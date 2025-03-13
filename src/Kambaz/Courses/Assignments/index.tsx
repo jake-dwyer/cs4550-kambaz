@@ -1,6 +1,6 @@
 import { ListGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { deleteAssignment } from "./reducer";
 import AssignmentControlButtons from "./AssignmentControlButtons";
 import { BsGripVertical, BsTrash } from "react-icons/bs";
