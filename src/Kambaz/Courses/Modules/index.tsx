@@ -2,12 +2,10 @@ import ModulesControls from "./ModulesControls";
 import ModuleControlButtons from "./ModuleControlButtons.tsx";
 import { ListGroup } from 'react-bootstrap';
 import { useParams } from 'react-router';
-import * as db from "../../Database";
 import { BsGripVertical } from 'react-icons/bs';
 import LessonControlButtons from "../../LessonControlButtons.tsx";
-import React, { useState } from 'react';
-import { addModule, editModule, updateModule, deleteModule }
-    from "./reducer";
+import { useState } from 'react';
+import { addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
 
 export default function Modules() {

@@ -1,6 +1,6 @@
-import { ListGroup, Button } from "react-bootstrap";
+import { ListGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { deleteAssignment } from "./reducer";
 import AssignmentControlButtons from "./AssignmentControlButtons";
 import { BsGripVertical, BsTrash } from "react-icons/bs";
@@ -11,7 +11,6 @@ export default function Assignments() {
     const { cid } = useParams();
     const assignmentsState = useSelector((state: any) => state.assignmentReducer);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     if (!assignmentsState || !assignmentsState.assignments) {
         return <h2>Error loading assignments</h2>;
