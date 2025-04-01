@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "kambaz-node-server-app", "kambaz-node-server-app/Hello.js", "kambaz-node-server-app/Labs/Lab5/index.js"]
 }
