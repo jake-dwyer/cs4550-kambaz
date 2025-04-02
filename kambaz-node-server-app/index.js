@@ -1,10 +1,11 @@
 import express from 'express';
 import session from "express-session";
-import "dotenv/config";
-import UserRoutes from './Kambaz/Users/routes.js';
-import Hello from "./Hello.js"
 import cors from "cors";
+import "dotenv/config";
+import Hello from "./Hello.js"
 import Lab5 from "./Labs/Lab5/index.js";
+import UserRoutes from './Kambaz/Users/routes.js';
+import CourseRoutes from './Kambaz/Courses/routes.js';
 
 const app = express()
 app.use(
@@ -29,7 +30,8 @@ const sessionOptions = {
 app.use(session(sessionOptions));  
 app.use(express.json());
 const port = process.env.PORT || 4000;
-UserRoutes(app);
-Lab5(app)
 Hello(app)
+Lab5(app)
+UserRoutes(app);
+CourseRoutes(app);
 app.listen(port)
