@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Row, Col, Card, Button, FormControl } from "react-bootstrap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleEnrollment } from "./Account/enrollmentReducer";
 import { addCourse, deleteCourse, updateCourse } from "./Courses/reducer";
+import * as enrollmentClient from "./Account/enrollmentClient";
+import { setEnrollments } from "./Account/enrollmentReducer";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
@@ -19,6 +21,16 @@ export default function Dashboard() {
   });
   const [showAllCourses, setShowAllCourses] = useState(false);
 
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      if (currentUser?._id) {
+        const userEnrollments = await enrollmentClient.findEnrollmentsForUser(currentUser._id);
+        dispatch(setEnrollments(userEnrollments));
+      }
+    };
+    fetchEnrollments();
+  }, [currentUser]);  
+
   const addNewCourse = () => {
     dispatch(addCourse({ name: course.name, description: course.description, image: course.image }));
     setCourse({ _id: "0", name: "New Course", description: "New Description", image: "/images/reactjs.jpg" });
@@ -33,9 +45,20 @@ export default function Dashboard() {
     dispatch(deleteCourse(courseId));
   };
 
-  const handleEnrollment = (courseId: string) => {
-    dispatch(toggleEnrollment({ userId: currentUser?._id, courseId }));
-  };
+  const handleEnrollment = async (courseId: string) => {
+    const isEnrolled = enrollments.some(
+      (e) => e.user === currentUser?._id && e.course === courseId
+    );
+  
+    if (isEnrolled) {
+      await enrollmentClient.unenroll(currentUser._id, courseId);
+    } else {
+      await enrollmentClient.enroll(currentUser._id, courseId);
+    }
+  
+    const updatedEnrollments = await enrollmentClient.findEnrollmentsForUser(currentUser._id);
+    dispatch(setEnrollments(updatedEnrollments));
+  };  
 
   const filteredCourses =
     currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN"

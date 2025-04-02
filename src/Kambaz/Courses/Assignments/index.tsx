@@ -1,11 +1,14 @@
 import { ListGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router";
-import { deleteAssignment } from "./reducer";
+import { deleteAssignment, setAssignments, updateAssignment, addAssignment } from "./reducer";
 import AssignmentControlButtons from "./AssignmentControlButtons";
 import { BsGripVertical, BsTrash } from "react-icons/bs";
 import { RxTriangleDown } from "react-icons/rx";
 import { LuNewspaper } from "react-icons/lu";
+import * as assignmentClient from "./client";
+import * as coursesClient from "../client";
+import { useEffect } from "react";
 
 export default function Assignments() {
   const { cid } = useParams();
@@ -19,6 +22,20 @@ export default function Assignments() {
   }
 
   const { assignments } = assignmentsState;
+
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      const modules = await coursesClient.findModulesForCourse(cid as string);
+      const moduleIds = modules.map((m: any) => m._id);
+      const allAssignments = await Promise.all(
+        moduleIds.map((id: string) => assignmentClient.findAssignmentsForModule(id))
+      );
+      const assignments = allAssignments.flat();
+      dispatch(setAssignments(assignments));
+    };    
+    fetchAssignments();
+  }, [cid]);
+  
 
   return (
     <div id="assignments" className="d-flex flex-column p-5 pt-2">
@@ -54,11 +71,18 @@ export default function Assignments() {
                   {canEdit && (
                     <button
                       className="btn btn-danger btn-sm"
-                      onClick={() => {
+                      onClick={async () => {
                         if (window.confirm("Are you sure you want to delete this assignment?")) {
-                          dispatch(deleteAssignment(assignment._id));
+                          await assignmentClient.deleteAssignment(assignment._id);
+                          const modules = await coursesClient.findModulesForCourse(cid as string);
+                          const moduleIds = modules.map((m: any) => m._id);
+                          const allAssignments = await Promise.all(
+                            moduleIds.map((id: string) => assignmentClient.findAssignmentsForModule(id))
+                          );
+                          const assignments = allAssignments.flat();
+                          dispatch(setAssignments(assignments));
                         }
-                      }}
+                      }}                     
                     >
                       <BsTrash />
                     </button>

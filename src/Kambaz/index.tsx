@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import "./styles.css";
 import KambazNavigation from "./Navigation";
 import Account from "./Account";
@@ -10,6 +11,7 @@ import Session from "./Account/Session";
 import { v4 as uuidv4 } from "uuid";
 import * as client from "./Courses/client";
 import * as userClient from "./Account/client";
+import * as courseClient from "./Courses/client";
 
 export default function Kambaz() {
     const [courses, setCourses] = useState<any[]>([]);
@@ -29,13 +31,16 @@ export default function Kambaz() {
         _id: "1234", name: "New Course", number: "New Number",
         startDate: "2023-09-10", endDate: "2023-12-15", description: "New Description",
     });
-    const addNewCourse = () => {
-        setCourses([...courses, { ...course, _id: uuidv4() }]);
-    };
-    const deleteCourse = (courseId: any) => {
+    const addNewCourse = async () => {
+        const newCourse = await userClient.createCourse(course);
+        setCourses([ ...courses, newCourse ]);
+    }
+    const deleteCourse = async (courseId: string) => {
+        const status = await courseClient.deleteCourse(courseId);
         setCourses(courses.filter((course) => course._id !== courseId));
     };
-    const updateCourse = () => {
+    const updateCourse = async () => {
+        await courseClient.updateCourse(course);
         setCourses(
             courses.map((c) => {
                 if (c._id === course._id) {

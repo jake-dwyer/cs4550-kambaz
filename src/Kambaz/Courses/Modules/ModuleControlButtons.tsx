@@ -5,10 +5,11 @@ import { FaPencil } from "react-icons/fa6";
 import { IoEllipsisVertical } from "react-icons/io5";
 
 export default function ModuleControlButtons(
-  { moduleId, deleteModule, editModule }: { 
+  { moduleId, deleteModule, editModule, addLesson }: { 
     moduleId: string; 
     deleteModule: (moduleId: string) => void;
     editModule: (moduleId: string) => void;
+    addLesson: (moduleId: string) => void;
   }
 ) {
   return (
@@ -22,7 +23,11 @@ export default function ModuleControlButtons(
         onClick={() => deleteModule(moduleId)} 
       />
       <GreenCheckmark />
-      <FaPlus className="fs-4" />
+      <FaPlus
+        className="fs-4 ms-3"
+        onClick={() => addLesson(moduleId)}
+        style={{ cursor: "pointer" }}
+      />
       <IoEllipsisVertical className="fs-4" />
     </div>
   );

@@ -1,6 +1,7 @@
 import { current } from "@reduxjs/toolkit";
 import * as dao from "./dao.js";
 import * as courseDao from "../Courses/dao.js";
+import * as enrollmentDao from "../Enrollments/dao.js";
 
 export default function UserRoutes(app) {
     const createUser = (req, res) => { };
@@ -53,7 +54,7 @@ export default function UserRoutes(app) {
 
     const signout = (req, res) => {
         req.session.destroy();
-        res.status(200);
+        res.sendStatus(200);
     };
     app.post("/api/users/signout", signout);
 
@@ -81,4 +82,11 @@ export default function UserRoutes(app) {
         res.json(courses);
     };
     app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
+
+    const createCourse = (req, res) => {
+        const currentUser = req.session["currentUser"];
+        const newCourse = courseDao.createCourse(req.body);
+        enrollmentDao.enrollUserInCourse(currentUser._id, newCourse._id);
+    };
+    app.post("/api/users/current/courses", createCourse);
   }

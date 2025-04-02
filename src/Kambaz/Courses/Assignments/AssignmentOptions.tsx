@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAssignment, updateAssignment } from "./reducer";
 import { v4 as uuidv4 } from "uuid";
+import * as assignmentClient from "./client";
 
 export default function Editor() {
     const { cid, aid } = useParams();
@@ -43,15 +44,17 @@ export default function Editor() {
         }
     );
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (existingAssignment) {
-            dispatch(updateAssignment(assignment));
+          const updated = await assignmentClient.updateAssignment(assignment);
+          dispatch(updateAssignment(updated));
         } else {
-            dispatch(addAssignment(assignment));
+          const defaultModuleId = assignment.module; 
+          const created = await assignmentClient.createAssignment(defaultModuleId, assignment);
+          dispatch(addAssignment(created));
         }
         navigate(`/Kambaz/Courses/${cid}/Assignments`);
-    };
-
+      };
     if (!canEdit) {
         return (
             <div className="container mt-4 p-5">
