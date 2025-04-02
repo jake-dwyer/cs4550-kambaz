@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { assignments as initialAssignments } from "../../Database";
+import { assignments as initialAssignments } from "../../../../kambaz-node-server-app/Kambaz/Database";
 import { v4 as uuidv4 } from "uuid";
 
 const initialState = {

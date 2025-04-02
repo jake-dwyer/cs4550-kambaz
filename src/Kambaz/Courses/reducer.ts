@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
-import { courses as initialCourses } from "../Database";
+import { courses as initialCourses } from "../../../kambaz-node-server-app/Kambaz/Database";
 
 const initialState = {
   courses: initialCourses,

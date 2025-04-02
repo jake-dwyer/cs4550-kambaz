@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
 import { Form, FormControl, Button } from "react-bootstrap";
+import * as client from "./client";
 
 export default function Profile() {
     const [profile, setProfile] = useState<any>({});
@@ -18,14 +19,16 @@ export default function Profile() {
         }
     }, [currentUser, navigate]);
 
-    const signout = () => {
+    const signout = async () => {
+        await client.signout();
         dispatch(setCurrentUser(null));
         navigate("/Kambaz/Account/Signin");
     };
 
-    const handleUpdateProfile = () => {
-        dispatch(setCurrentUser(profile));
-    };
+    const updateProfile = async () => {
+        const updatedProfile = await client.updateUser(profile);
+        dispatch(setCurrentUser(updatedProfile));
+      };    
 
     return (
         <div className="wd-profile-screen">
@@ -96,9 +99,7 @@ export default function Profile() {
                         </Form.Select>
                     </Form.Group>
 
-                    <Button variant="primary" className="w-100 mb-2" onClick={handleUpdateProfile}>
-                        Save Changes
-                    </Button>
+                    <button onClick={updateProfile} className="btn btn-primary w-100 mb-2"> Update </button>
                     <Button variant="danger" className="w-100" onClick={signout}>
                         Sign out
                     </Button>

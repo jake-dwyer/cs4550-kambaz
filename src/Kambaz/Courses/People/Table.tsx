@@ -1,7 +1,7 @@
 import { FaUserCircle } from "react-icons/fa";
 import { Table } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import * as db from "../../Database";
+import * as db from "../../../../kambaz-node-server-app/Kambaz/Database";
 
 export default function PeopleTable() {
   const { cid } = useParams();
