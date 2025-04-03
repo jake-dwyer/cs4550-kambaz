@@ -1,15 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
-import { courses as initialCourses } from "../../../../kambaz-node-server-app/Kambaz/Database";
 
 const initialState = {
-  courses: initialCourses,
+  courses: [],
 };
 
 const coursesSlice = createSlice({
   name: "courses",
   initialState,
   reducers: {
+    setCourses: (state, { payload }) => {
+      state.courses = payload;
+    },
     addCourse: (state, { payload }) => {
       const newCourse = { _id: uuidv4(), ...payload };
       state.courses.push(newCourse);
@@ -25,5 +27,11 @@ const coursesSlice = createSlice({
   },
 });
 
-export const { addCourse, deleteCourse, updateCourse } = coursesSlice.actions;
+export const {
+  setCourses,
+  addCourse,
+  deleteCourse,
+  updateCourse,
+} = coursesSlice.actions;
+
 export default coursesSlice.reducer;

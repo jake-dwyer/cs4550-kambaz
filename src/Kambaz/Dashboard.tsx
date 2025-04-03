@@ -6,6 +6,8 @@ import { toggleEnrollment } from "./Account/enrollmentReducer";
 import { addCourse, deleteCourse, updateCourse } from "./Courses/reducer";
 import * as enrollmentClient from "./Account/enrollmentClient";
 import { setEnrollments } from "./Account/enrollmentReducer";
+import { setCourses } from "./Courses/reducer";
+import * as courseClient from "./Courses/client";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
@@ -31,9 +33,30 @@ export default function Dashboard() {
     fetchEnrollments();
   }, [currentUser]);  
 
-  const addNewCourse = () => {
-    dispatch(addCourse({ name: course.name, description: course.description, image: course.image }));
-    setCourse({ _id: "0", name: "New Course", description: "New Description", image: "/images/reactjs.jpg" });
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const courses = await courseClient.fetchAllCourses();
+        dispatch(setCourses(courses));
+      } catch (e) {
+        console.error("Failed to fetch courses", e);
+      }
+    };
+  
+    fetchCourses();
+  }, []);  
+
+  const addNewCourse = async () => {
+    const newCourse = {
+      name: course.name,
+      description: course.description,
+      image: course.image,
+    };
+  
+    const created = await courseClient.createCourse(newCourse);
+    dispatch(addCourse(created));
+  
+    setCourse({ name: "New Course", description: "New Description", image: "/images/reactjs.jpg" });
   };
 
   const updateExistingCourse = () => {
@@ -41,9 +64,10 @@ export default function Dashboard() {
     setCourse({ _id: "0", name: "New Course", description: "New Description", image: "/images/reactjs.jpg" });
   };
 
-  const handleDelete = (courseId: string) => {
+  const handleDelete = async (courseId: string) => {
+    await courseClient.deleteCourse(courseId);
     dispatch(deleteCourse(courseId));
-  };
+  };  
 
   const handleEnrollment = async (courseId: string) => {
     const isEnrolled = enrollments.some(
