@@ -54,12 +54,13 @@ export default function Editor() {
       const updated = await assignmentClient.updateAssignment(assignment);
       dispatch(updateAssignment(updated));
     } else {
-      const created = await assignmentClient.createAssignment(assignment.module, assignment);
+      const created = await assignmentClient.createAssignment(cid, assignment);
       dispatch(addAssignment(created));
     }
   
     navigate(`/Kambaz/Courses/${cid}/Assignments`);
   };
+  
 
   if (!canEdit) {
     return (

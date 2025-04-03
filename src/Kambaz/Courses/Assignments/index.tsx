@@ -1,13 +1,12 @@
 import { ListGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router";
-import { deleteAssignment, setAssignments, updateAssignment, addAssignment } from "./reducer";
+import { deleteAssignment, setAssignments } from "./reducer";
 import AssignmentControlButtons from "./AssignmentControlButtons";
 import { BsGripVertical, BsTrash } from "react-icons/bs";
 import { RxTriangleDown } from "react-icons/rx";
 import { LuNewspaper } from "react-icons/lu";
 import * as assignmentClient from "./client";
-import * as coursesClient from "../client";
 import { useEffect } from "react";
 
 export default function Assignments() {
@@ -17,25 +16,20 @@ export default function Assignments() {
   const canEdit = currentUser && (currentUser.role === "ADMIN" || currentUser.role === "FACULTY");
   const dispatch = useDispatch();
 
-  if (!assignmentsState || !assignmentsState.assignments) {
-    return <h2>Error loading assignments</h2>;
-  }
-
-  const { assignments } = assignmentsState;
+  const { assignments } = assignmentsState || {};
 
   useEffect(() => {
     const fetchAssignments = async () => {
-      const modules = await coursesClient.findModulesForCourse(cid as string);
-      const moduleIds = modules.map((m: any) => m._id);
-      const allAssignments = await Promise.all(
-        moduleIds.map((id: string) => assignmentClient.findAssignmentsForModule(id))
-      );
-      const assignments = allAssignments.flat();
+      if (!cid) return;
+      const assignments = await assignmentClient.findAssignmentsForCourse(cid);
       dispatch(setAssignments(assignments));
-    };    
+    };
     fetchAssignments();
   }, [cid]);
-  
+
+  if (!assignments) {
+    return <h2>Error loading assignments</h2>;
+  }
 
   return (
     <div id="assignments" className="d-flex flex-column p-5 pt-2">
@@ -74,15 +68,10 @@ export default function Assignments() {
                       onClick={async () => {
                         if (window.confirm("Are you sure you want to delete this assignment?")) {
                           await assignmentClient.deleteAssignment(assignment._id);
-                          const modules = await coursesClient.findModulesForCourse(cid as string);
-                          const moduleIds = modules.map((m: any) => m._id);
-                          const allAssignments = await Promise.all(
-                            moduleIds.map((id: string) => assignmentClient.findAssignmentsForModule(id))
-                          );
-                          const assignments = allAssignments.flat();
-                          dispatch(setAssignments(assignments));
+                          const updated = await assignmentClient.findAssignmentsForCourse(cid);
+                          dispatch(setAssignments(updated));
                         }
-                      }}                     
+                      }}
                     >
                       <BsTrash />
                     </button>
