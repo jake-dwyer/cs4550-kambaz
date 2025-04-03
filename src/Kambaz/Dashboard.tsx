@@ -59,10 +59,12 @@ export default function Dashboard() {
     setCourse({ name: "New Course", description: "New Description", image: "/images/reactjs.jpg" });
   };
 
-  const updateExistingCourse = () => {
-    dispatch(updateCourse(course));
+  const updateExistingCourse = async () => {
+    const updated = await courseClient.updateCourse(course);
+    dispatch(updateCourse(updated));
     setCourse({ _id: "0", name: "New Course", description: "New Description", image: "/images/reactjs.jpg" });
   };
+  
 
   const handleDelete = async (courseId: string) => {
     await courseClient.deleteCourse(courseId);
