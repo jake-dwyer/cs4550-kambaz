@@ -1,6 +1,6 @@
 import { IoEllipsisVertical } from "react-icons/io5";
 import { FaPencil } from "react-icons/fa6";
-import GreenCheckmark from "./Courses/Modules/GreenCheckmark";
+import GreenCheckmark from "./GreenCheckmark";
 
 export default function LessonControlButtons({
   editLesson,

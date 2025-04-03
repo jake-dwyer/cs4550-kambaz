@@ -1,7 +1,7 @@
 import { ListGroup } from 'react-bootstrap';
 import { useParams } from 'react-router';
 import { BsGripVertical } from 'react-icons/bs';
-import LessonControlButtons from "../../LessonControlButtons.tsx";
+import LessonControlButtons from "./LessonControlButtons.tsx";
 import { useState, useEffect } from 'react';
 import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
