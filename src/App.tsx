@@ -5,7 +5,23 @@ import { Provider } from "react-redux";
 import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
 
 import axios from "axios";
+
 axios.defaults.withCredentials = true;
+axios.defaults.timeout = 10000;
+
+if (import.meta.env.MODE !== "development") {
+  const RENDER_URL = "https://kambaz-node-server-app-p33e.onrender.com";
+
+  axios.get(RENDER_URL).catch((err) => {
+    console.log("Initial wake ping failed:", err.message);
+  });
+
+  setInterval(() => {
+    axios.get(RENDER_URL).catch((err) => {
+      console.log("Keep-alive ping failed:", err.message);
+    });
+  }, 1000 * 60 * 5);
+}
 
 function App() {
   return (
@@ -23,4 +39,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
