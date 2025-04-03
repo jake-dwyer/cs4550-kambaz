@@ -1,6 +1,6 @@
 import { Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addAssignment, updateAssignment } from "./reducer";
 import { v4 as uuidv4 } from "uuid";
@@ -42,7 +42,14 @@ export default function Editor() {
       availableUntil: "2024-05-20",
       description: `This assignment is part of course ${cid}. Please refer to the course materials for specific instructions.`,
     }
+    
   );
+
+  useEffect(() => {
+    if (existingAssignment && !existingAssignment.module && defaultModuleId) {
+      setAssignment((prev: any) => ({ ...prev, module: defaultModuleId }));
+    }
+  }, [existingAssignment, defaultModuleId]);  
 
   const handleSave = async () => {
     if (!assignment.module) {
