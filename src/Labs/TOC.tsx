@@ -16,8 +16,11 @@ export default function TOC() {
                 className={`nav-link ${pathname.includes("Lab5") ? "active" : ""}`}>Lab 5</a></li>
             <li className="nav-item"><a id="wd-k" href="#/Kambaz" className="nav-link">Kambaz</a></li>
             <li className="nav-item"><a id="wd-github"
-                href="https://github.com/jake-dwyer" target="_blank"
-                className="nav-link">My GitHub</a></li>
+                href="https://github.com/jake-dwyer/cs4550-kambaz" target="_blank"
+                className="nav-link">App</a></li>
+                            <li className="nav-item"><a id="wd-github"
+                href="https://github.com/jake-dwyer/kambaz-node-server-app" target="_blank"
+                className="nav-link">Server</a></li>
         </ul>
     );
 }
