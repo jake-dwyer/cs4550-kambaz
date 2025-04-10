@@ -15,7 +15,7 @@ export default function Signup() {
     };
     return (
         <div className="wd-signup-screen">
-            <h1>Sign up</h1>
+            <h3>Sign up</h3>
             <FormControl value={user.username} onChange={(e) => setUser({ ...user, username: e.target.value })}
                 className="wd-username b-2" placeholder="username" />
             <FormControl value={user.password} onChange={(e) => setUser({ ...user, password: e.target.value })}
