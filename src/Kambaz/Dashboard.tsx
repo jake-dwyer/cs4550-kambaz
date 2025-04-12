@@ -60,8 +60,9 @@ export default function Dashboard() {
   };
 
   const updateExistingCourse = async () => {
-    const updated = await courseClient.updateCourse(course);
-    dispatch(updateCourse(updated));
+    await courseClient.updateCourse(course);
+    const courses = await courseClient.fetchAllCourses();
+    dispatch(setCourses(courses));
     setCourse({ _id: "0", name: "New Course", description: "New Description", image: "/images/reactjs.jpg" });
   };
   
@@ -72,18 +73,22 @@ export default function Dashboard() {
   };  
 
   const handleEnrollment = async (courseId: string) => {
+    console.log("📌 handleEnrollment called with:", courseId);
+    console.log("📦 currentUser:", currentUser);
     const isEnrolled = enrollments.some(
       (e) => e.user === currentUser?._id && e.course === courseId
     );
-  
-    if (isEnrolled) {
-      await enrollmentClient.unenroll(currentUser._id, courseId);
-    } else {
-      await enrollmentClient.enroll(currentUser._id, courseId);
+    try {
+      if (isEnrolled) {
+        await enrollmentClient.unenroll(currentUser._id, courseId);
+      } else {
+        await enrollmentClient.enroll(currentUser._id, courseId);
+      }
+      const updated = await enrollmentClient.findEnrollmentsForUser(currentUser._id);
+      dispatch(setEnrollments(updated));
+    } catch (err) {
+      console.error("🔥 Enrollment error:", err);
     }
-  
-    const updatedEnrollments = await enrollmentClient.findEnrollmentsForUser(currentUser._id);
-    dispatch(setEnrollments(updatedEnrollments));
   };  
 
   const filteredCourses =
