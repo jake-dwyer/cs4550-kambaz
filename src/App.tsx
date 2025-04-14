@@ -10,7 +10,7 @@ axios.defaults.withCredentials = true;
 axios.defaults.timeout = 10000;
 
 if (import.meta.env.MODE !== "development") {
-  const RENDER_URL = "https://kambaz-node-server-app-p33e.onrender.com";
+  const RENDER_URL = "https://kambaz-node-server-app-1-rxaj.onrender.com";
 
   axios.get(RENDER_URL).catch((err) => {
     console.log("Initial wake ping failed:", err.message);
