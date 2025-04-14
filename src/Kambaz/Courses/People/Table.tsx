@@ -16,19 +16,22 @@ type User = {
   totalActivity?: string;
 };
 
-export default function PeopleTable() {
-  // Get the course id from the URL. Ensure your route is set to something like "/Kambaz/Courses/:cid/People"
+export default function PeopleTable({ users: propUsers }: { users?: User[] }) {
   const { cid } = useParams();
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
+    if (propUsers) {
+      setUsers(propUsers);
+      return;
+    }
+
     if (!cid) return;
 
     const fetchUsers = async () => {
       try {
         const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER || "http://localhost:4000";
         const response = await axios.get(`${REMOTE_SERVER}/api/courses/${cid}/users`);
-        console.log("Fetched users:", response.data);
         setUsers(response.data);
       } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -36,13 +39,11 @@ export default function PeopleTable() {
     };
 
     fetchUsers();
-  }, [cid]);
-
- // console.log("🧑‍🤝‍🧑 Users passed to PeopleTable:", users);
+  }, [cid, propUsers]);
 
   return (
     <div id="wd-people-table">
-      <PeopleDetails />
+      {!propUsers && <PeopleDetails />}
       <Table striped>
         <thead>
           <tr>
@@ -57,28 +58,22 @@ export default function PeopleTable() {
         <tbody>
           {users.length === 0 ? (
             <tr>
-              <td colSpan={6} className="text-center text-muted">
-                No users enrolled in this course.
-              </td>
+              <td colSpan={6} className="text-center text-muted">No users enrolled.</td>
             </tr>
           ) : (
             users.map((user) => (
               <tr key={user._id}>
                 <td className="wd-full-name text-nowrap">
-                  <Link
-                    to={`/Kambaz/Account/Users/${user._id}`}
-                    className="text-decoration-none"
-                  >
+                  <Link to={`/Kambaz/Account/Users/${user._id}`} className="text-decoration-none">
                     <FaUserCircle className="me-2 fs-1 text-secondary" />
-                    <span className="wd-first-name">{user.firstName}</span>
-                    <span className="wd-last-name"> {user.lastName}</span>
+                    <span>{user.firstName}</span> <span>{user.lastName}</span>
                   </Link>
                 </td>
-                <td className="wd-login-id">{user.loginId}</td>
-                <td className="wd-section">{user.section}</td>
-                <td className="wd-role">{user.role}</td>
-                <td className="wd-last-activity">{user.lastActivity}</td>
-                <td className="wd-total-activity">{user.totalActivity}</td>
+                <td>{user.loginId}</td>
+                <td>{user.section}</td>
+                <td>{user.role}</td>
+                <td>{user.lastActivity}</td>
+                <td>{user.totalActivity}</td>
               </tr>
             ))
           )}
