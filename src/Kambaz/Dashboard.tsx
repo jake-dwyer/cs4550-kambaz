@@ -73,8 +73,6 @@ export default function Dashboard() {
   };  
 
   const handleEnrollment = async (courseId: string) => {
-    console.log("📌 handleEnrollment called with:", courseId);
-    console.log("📦 currentUser:", currentUser);
     const isEnrolled = enrollments.some(
       (e) => e.user === currentUser?._id && e.course === courseId
     );

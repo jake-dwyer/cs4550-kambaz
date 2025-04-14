@@ -24,3 +24,8 @@ export const updateAssignment = async (assignment: any) => {
   const response = await axiosWithCredentials.put(`${BASE_ASSIGNMENTS_API}/${assignment._id}`, assignment);
   return response.data;
 };
+
+export const findAssignmentById = async (assignmentId: string) => {
+  const response = await axiosWithCredentials.get(`${BASE_ASSIGNMENTS_API}/${assignmentId}`);
+  return response.data;
+};
