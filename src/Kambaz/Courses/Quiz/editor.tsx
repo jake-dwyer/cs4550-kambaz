@@ -52,11 +52,12 @@ export default function Editor() {
 
   const handleSave = async () => {
     try {
+      const updatedQuiz = { ...quiz };
       if (existingQuiz) {
-        const updated = await quizClient.updateQuiz(quiz);
+        const updated = await quizClient.updateQuiz(updatedQuiz);
         dispatch(updateQuiz(updated));
       } else {
-        const created = await quizClient.createQuiz(cid!, quiz);
+        const created = await quizClient.createQuiz(cid!, updatedQuiz);
         dispatch(addQuiz(created));
       }
       navigate(`/Kambaz/Courses/${cid}/Quizzes`);
@@ -87,22 +88,10 @@ export default function Editor() {
   if (!currentUser) return <div className="p-4">Unauthorized</div>;
   if (!canEdit && !existingQuiz?.published) return <div className="p-4">This quiz is not available yet.</div>;
 
-  if (!canEdit) {
-    return (
-      <div className="p-4">
-        <h2>{existingQuiz?.title}</h2>
-        <p>{existingQuiz?.description}</p>
-        <Button onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/take`)}>
-          Take Quiz
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="container mt-4 p-4">
       <h2>Edit Quiz</h2>
-      <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k || "details")}>
+      <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k || "details")}> 
         <Nav.Item>
           <Nav.Link eventKey="details">Details</Nav.Link>
         </Nav.Item>
@@ -177,13 +166,25 @@ export default function Editor() {
             <Form.Control
               type="number"
               value={quiz.settings.howManyAttempts}
-              onChange={(e) => setQuiz({ ...quiz, settings: { ...quiz.settings, howManyAttempts: parseInt(e.target.value || "1") } })}
+              onChange={(e) =>
+                setQuiz({ ...quiz, settings: { ...quiz.settings, howManyAttempts: parseInt(e.target.value || "1") } })
+              }
             />
             <Form.Label className="mt-2">Time Limit (minutes)</Form.Label>
             <Form.Control
               type="number"
               value={quiz.settings.timeLimit}
-              onChange={(e) => setQuiz({ ...quiz, settings: { ...quiz.settings, timeLimit: parseInt(e.target.value || "20") } })}
+              onChange={(e) =>
+                setQuiz({ ...quiz, settings: { ...quiz.settings, timeLimit: parseInt(e.target.value || "20") } })
+              }
+            />
+            <Form.Label className="mt-2">Access Code (optional)</Form.Label>
+            <Form.Control
+              type="text"
+              value={quiz.settings.accessCode}
+              onChange={(e) =>
+                setQuiz({ ...quiz, settings: { ...quiz.settings, accessCode: e.target.value } })
+              }
             />
           </div>
         </>

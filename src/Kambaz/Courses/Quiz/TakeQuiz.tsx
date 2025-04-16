@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Button, Form } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import * as quizClient from "./client";
@@ -15,6 +15,7 @@ export default function TakeQuiz() {
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -34,17 +35,17 @@ export default function TakeQuiz() {
     if (qid) fetchQuiz();
   }, [qid]);
 
-  const handleChange = (questionIndex: number, value: any) => {
-    setAnswers({ ...answers, [questionIndex]: value });
+  const handleChange = (questionId: string, value: any) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const handleSubmit = async () => {
     if (!quiz || !currentUser) return;
-  
-    const score = Object.entries(answers).reduce((sum, [qid, ans]) => {
-      const q = quiz.questions.find((q: any) => q._id === qid);
+
+    const score = Object.entries(answers).reduce((sum, [questionId, ans]) => {
+      const q = quiz.questions.find((q: any) => q._id === questionId);
       if (!q) return sum;
-  
+
       if (q.type === "multiple-choice" && q.correctChoiceIndex === ans) {
         return sum + q.points;
       } else if (q.type === "true-false" && q.correctTrueFalse === ans) {
@@ -57,17 +58,17 @@ export default function TakeQuiz() {
       }
       return sum;
     }, 0);
-  
+
     try {
       const existing = await quizClient.findQuizById(qid!);
       const userAttempts = existing.attempts?.filter((a: any) => a.student === currentUser._id) || [];
       const limit = existing.settings?.howManyAttempts || 1;
-  
+
       if (userAttempts.length >= limit) {
         alert("You have already used all your allowed attempts.");
         return;
       }
-  
+
       const updated = {
         ...existing,
         attempts: [
@@ -80,7 +81,7 @@ export default function TakeQuiz() {
           },
         ],
       };
-  
+
       await quizClient.updateQuiz(updated);
       setSubmitted(true);
       setScore(score);
@@ -93,60 +94,164 @@ export default function TakeQuiz() {
   if (error) return <div className="text-danger p-4">{error}</div>;
   if (!quiz) return <div className="p-4">Quiz not found.</div>;
 
+  const renderFeedback = (q: any, userAns: any) => {
+    if (!submitted) return null;
+    let isCorrect = false;
+    if (q.type === "multiple-choice") isCorrect = userAns === q.correctChoiceIndex;
+    else if (q.type === "true-false") isCorrect = userAns === q.correctTrueFalse;
+    else if (q.type === "fill-in-the-blank")
+      isCorrect = q.possibleAnswers?.map((a: string) => a.toLowerCase()).includes((userAns || '').toLowerCase());
+
+    return (
+      <div className={`mt-2 ${isCorrect ? "text-success" : "text-danger"}`}>
+        {isCorrect ? "✔ Correct" : "✘ Incorrect"}
+      </div>
+    );
+  };
+
   return (
     <div className="container mt-4">
       <h2>{quiz.title}</h2>
-      {quiz.questions.map((q: any, index: number) => (
-        <div key={index} className="border p-3 mb-3">
-          <strong>{q.title}</strong>
-          <p>{q.questionText}</p>
 
-          {q.type === "multiple-choice" &&
-            q.choices.map((choice: string, cIndex: number) => (
-              <Form.Check
-                key={cIndex}
-                type="radio"
-                label={choice}
-                name={`q-${index}`}
-                checked={answers[index] === cIndex}
-                onChange={() => handleChange(index, cIndex)}
-              />
-            ))}
+      {quiz.settings?.oneQuestionAtATime ? (
+        <>
+          {quiz.questions.map((q: any, index: number) =>
+            index === currentQuestionIndex ? (
+              <div key={q._id} className="border p-3 mb-3">
+                <strong>{q.title}</strong>
+                <p>{q.questionText}</p>
 
-          {q.type === "true-false" && (
-            <>
-              <Form.Check
-                type="radio"
-                label="True"
-                name={`q-${index}`}
-                checked={answers[index] === true}
-                onChange={() => handleChange(index, true)}
-              />
-              <Form.Check
-                type="radio"
-                label="False"
-                name={`q-${index}`}
-                checked={answers[index] === false}
-                onChange={() => handleChange(index, false)}
-              />
-            </>
+                {q.type === "multiple-choice" &&
+                  q.choices.map((choice: string, cIndex: number) => (
+                    <Form.Check
+                      key={cIndex}
+                      type="radio"
+                      label={choice}
+                      name={`q-${q._id}`}
+                      checked={answers[q._id] === cIndex}
+                      onChange={() => handleChange(q._id, cIndex)}
+                      disabled={submitted}
+                    />
+                  ))}
+
+                {q.type === "true-false" && (
+                  <>
+                    <Form.Check
+                      type="radio"
+                      label="True"
+                      name={`q-${q._id}`}
+                      checked={answers[q._id] === true}
+                      onChange={() => handleChange(q._id, true)}
+                      disabled={submitted}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="False"
+                      name={`q-${q._id}`}
+                      checked={answers[q._id] === false}
+                      onChange={() => handleChange(q._id, false)}
+                      disabled={submitted}
+                    />
+                  </>
+                )}
+
+                {q.type === "fill-in-the-blank" && (
+                  <Form.Control
+                    type="text"
+                    value={answers[q._id] || ""}
+                    onChange={(e) => handleChange(q._id, e.target.value)}
+                    disabled={submitted}
+                  />
+                )}
+
+                {renderFeedback(q, answers[q._id])}
+              </div>
+            ) : null
           )}
 
-          {q.type === "fill-in-the-blank" && (
-            <Form.Control
-              type="text"
-              value={answers[index] || ""}
-              onChange={(e) => handleChange(index, e.target.value)}
-            />
-          )}
-        </div>
-      ))}
+          <div className="d-flex justify-content-between">
+            <Button
+              variant="secondary"
+              disabled={currentQuestionIndex === 0}
+              onClick={() => setCurrentQuestionIndex((i) => i - 1)}
+            >
+              Previous
+            </Button>
 
-      {!submitted ? (
-        <Button variant="success" onClick={handleSubmit}>
-          Submit Quiz
-        </Button>
+            {currentQuestionIndex < quiz.questions.length - 1 ? (
+              <Button onClick={() => setCurrentQuestionIndex((i) => i + 1)}>
+                Next
+              </Button>
+            ) : (
+              <Button variant="success" onClick={handleSubmit} disabled={submitted}>
+                Submit Quiz
+              </Button>
+            )}
+          </div>
+        </>
       ) : (
+        <>
+          {quiz.questions.map((q: any) => (
+            <div key={q._id} className="border p-3 mb-3">
+              <strong>{q.title}</strong>
+              <p>{q.questionText}</p>
+
+              {q.type === "multiple-choice" &&
+                q.choices.map((choice: string, cIndex: number) => (
+                  <Form.Check
+                    key={cIndex}
+                    type="radio"
+                    label={choice}
+                    name={`q-${q._id}`}
+                    checked={answers[q._id] === cIndex}
+                    onChange={() => handleChange(q._id, cIndex)}
+                    disabled={submitted}
+                  />
+                ))}
+
+              {q.type === "true-false" && (
+                <>
+                  <Form.Check
+                    type="radio"
+                    label="True"
+                    name={`q-${q._id}`}
+                    checked={answers[q._id] === true}
+                    onChange={() => handleChange(q._id, true)}
+                    disabled={submitted}
+                  />
+                  <Form.Check
+                    type="radio"
+                    label="False"
+                    name={`q-${q._id}`}
+                    checked={answers[q._id] === false}
+                    onChange={() => handleChange(q._id, false)}
+                    disabled={submitted}
+                  />
+                </>
+              )}
+
+              {q.type === "fill-in-the-blank" && (
+                <Form.Control
+                  type="text"
+                  value={answers[q._id] || ""}
+                  onChange={(e) => handleChange(q._id, e.target.value)}
+                  disabled={submitted}
+                />
+              )}
+
+              {renderFeedback(q, answers[q._id])}
+            </div>
+          ))}
+
+          {!submitted && (
+            <Button variant="success" onClick={handleSubmit}>
+              Submit Quiz
+            </Button>
+          )}
+        </>
+      )}
+
+      {submitted && (
         <div className="alert alert-info mt-4">
           <h4>Your score: {score}</h4>
           <Button variant="primary" onClick={() => navigate(`/Kambaz/Courses/${quiz.course}/Quizzes`)}>

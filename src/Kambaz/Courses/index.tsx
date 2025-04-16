@@ -13,6 +13,8 @@ import PeopleTable from "./People/Table";
 import Quizzes from "./Quiz/index";
 import QuizEditor from "./Quiz/editor";
 import TakeQuiz from "./Quiz/TakeQuiz";
+import Preview from "./Quiz/preview";
+import QuizDetails from "./Quiz/details";
 
 export default function Courses() {
   const { cid } = useParams();
@@ -81,7 +83,9 @@ export default function Courses() {
             <Route path="/Quizzes/:qid" element={<QuizEditor />} />
             <Route path="/Quizzes/:qid/edit" element={<QuizEditor />} />
             <Route path="/Quizzes/:qid/take" element={<TakeQuiz />} />
-          </Routes>
+            <Route path="/Quizzes/:qid/preview" element={<Preview />} />
+            <Route path="/Quizzes/:qid/details" element={<QuizDetails />} />
+            </Routes>
         </div>
       </div>
     </div>

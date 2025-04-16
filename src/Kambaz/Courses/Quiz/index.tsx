@@ -61,53 +61,60 @@ export default function Quizzes() {
         {quizzes.length === 0 && (
           <div className="text-muted ms-2">No quizzes found. {canEdit && "Click + Quiz to add one."}</div>
         )}
-        {quizzes.map((q) => (
-          <ListGroup.Item
-            key={q._id}
-            className="mb-2 border rounded d-flex justify-content-between align-items-start"
-          >
-            <div
-              className="flex-grow-1"
-              style={{ cursor: "pointer" }}
-              onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${q._id}`)}
+        {quizzes.map((q) => {
+          const userAttempts = q.attempts?.filter((a: any) => a.student === currentUser?._id) || [];
+          const latestScore = userAttempts[userAttempts.length - 1]?.score;
+
+          return (
+            <ListGroup.Item
+              key={q._id}
+              className="mb-2 border rounded d-flex justify-content-between align-items-start"
             >
-              <b className="text-primary">{q.title || "Untitled Quiz"}</b>
-              <div className="text-muted small">
-                Due: {formatDate(q.availability?.dueDate)} | Available: {formatDate(q.availability?.availableFrom)} -{" "}
-                {formatDate(q.availability?.availableUntil)} | Points: {q.points || 0} | Questions:{" "}
-                {q.questions?.length || 0}
+              <div
+                className="flex-grow-1"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${q._id}/details`)}
+              >
+                <b className="text-primary">{q.title || "Untitled Quiz"}</b>
+                <div className="text-muted small">
+                  Due: {formatDate(q.availability?.dueDate)} | Available: {formatDate(q.availability?.availableFrom)} - {formatDate(q.availability?.availableUntil)} | Points: {q.points || 0} | Questions: {q.questions?.length || 0}
+                  {currentUser?.role === "STUDENT" && userAttempts.length > 0 && ` | Your Score: ${latestScore}`}
+                </div>
               </div>
-            </div>
-            {canEdit && (
-              <Dropdown>
-                <Dropdown.Toggle variant="light" size="sm" />
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${q._id}`)}>
-                    Edit
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={async () => {
-                      if (window.confirm("Are you sure you want to delete this quiz?")) {
-                        await quizClient.deleteQuiz(q._id);
-                        dispatch(deleteQuizAction(q._id));
-                      }
-                    }}
-                  >
-                    Delete
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={async () => {
-                      const updated = await quizClient.publishQuiz(q._id, !q.published);
-                      dispatch(updateQuiz(updated));
-                    }}
-                  >
-                    {q.published ? "Unpublish" : "Publish"}
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            )}
-          </ListGroup.Item>
-        ))}
+              {canEdit && (
+                <Dropdown>
+                  <Dropdown.Toggle variant="light" size="sm" />
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${q._id}`)}>
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${q._id}/preview`)}>
+                      Preview
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={async () => {
+                        if (window.confirm("Are you sure you want to delete this quiz?")) {
+                          await quizClient.deleteQuiz(q._id);
+                          dispatch(deleteQuizAction(q._id));
+                        }
+                      }}
+                    >
+                      Delete
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={async () => {
+                        const updated = await quizClient.publishQuiz(q._id, !q.published);
+                        dispatch(updateQuiz(updated));
+                      }}
+                    >
+                      {q.published ? "Unpublish" : "Publish"}
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              )}
+            </ListGroup.Item>
+          );
+        })}
       </ListGroup>
     </div>
   );
