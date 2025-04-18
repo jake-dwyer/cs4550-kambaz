@@ -65,6 +65,23 @@ export default function Quizzes() {
           const userAttempts = q.attempts?.filter((a: any) => a.student === currentUser?._id) || [];
           const latestScore = userAttempts[userAttempts.length - 1]?.score;
 
+          const now = new Date();
+          const availableFrom = q.availability?.availableFrom ? new Date(q.availability.availableFrom) : null;
+          const availableUntil = q.availability?.availableUntil ? new Date(q.availability.availableUntil) : null;
+
+          let availabilityStatus = "Unknown";
+          if (!q.published) {
+            availabilityStatus = "Unpublished";
+          } else if (availableFrom && now < availableFrom) {
+            availabilityStatus = `Not available until ${availableFrom.toLocaleDateString("en-US")}`;
+          } else if (availableUntil && now > availableUntil) {
+            availabilityStatus = "Closed";
+          } else {
+            availabilityStatus = "Available";
+          }
+
+          const publishedIcon = q.published ? "✅" : "🚫";
+
           return (
             <ListGroup.Item
               key={q._id}
@@ -75,9 +92,11 @@ export default function Quizzes() {
                 style={{ cursor: "pointer" }}
                 onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${q._id}/details`)}
               >
-                <b className="text-primary">{q.title || "Untitled Quiz"}</b>
+                <b className="text-primary">
+                  {publishedIcon} {q.title || "Untitled Quiz"}
+                </b>
                 <div className="text-muted small">
-                  Due: {formatDate(q.availability?.dueDate)} | Available: {formatDate(q.availability?.availableFrom)} - {formatDate(q.availability?.availableUntil)} | Points: {q.points || 0} | Questions: {q.questions?.length || 0}
+                  {availabilityStatus} | Due: {formatDate(q.availability?.dueDate)} | Available: {formatDate(q.availability?.availableFrom)} - {formatDate(q.availability?.availableUntil)} | Points: {q.points || 0} | Questions: {q.questions?.length || 0}
                   {currentUser?.role === "STUDENT" && userAttempts.length > 0 && ` | Your Score: ${latestScore}`}
                 </div>
               </div>

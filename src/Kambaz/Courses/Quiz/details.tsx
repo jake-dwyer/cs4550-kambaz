@@ -57,7 +57,7 @@ export default function QuizDetails() {
   return (
     <div className="container mt-4">
       <h2>{quiz.title}</h2>
-      <p>{quiz.description}</p>
+      <div className="mb-3" dangerouslySetInnerHTML={{ __html: quiz.description }} />
 
       <p><strong>Points:</strong> {quiz.points}</p>
       <p><strong>Due:</strong> {quiz.availability?.dueDate?.slice(0, 10) || "N/A"}</p>

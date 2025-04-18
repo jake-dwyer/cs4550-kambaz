@@ -66,12 +66,13 @@ export default function PreviewQuiz() {
       </Button>
 
       <h2>{quiz.title} (Preview)</h2>
+      <div className="mb-3" dangerouslySetInnerHTML={{ __html: quiz.description }} />
       <p className="text-muted">This is a preview mode. Your answers will not be saved.</p>
 
       {quiz.questions.map((q, index) => (
         <div key={index} className="border p-3 mb-3">
           <strong>{q.title}</strong>
-          <p>{q.questionText}</p>
+          <div className="mb-2" dangerouslySetInnerHTML={{ __html: q.questionText }} />
 
           {q.type === "multiple-choice" && q.choices.map((choice, i) => (
             <Form.Check

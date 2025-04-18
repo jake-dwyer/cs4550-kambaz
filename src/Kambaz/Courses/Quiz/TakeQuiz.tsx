@@ -119,7 +119,7 @@ export default function TakeQuiz() {
             index === currentQuestionIndex ? (
               <div key={q._id} className="border p-3 mb-3">
                 <strong>{q.title}</strong>
-                <p>{q.questionText}</p>
+                <div dangerouslySetInnerHTML={{ __html: q.questionText }} />
 
                 {q.type === "multiple-choice" &&
                   q.choices.map((choice: string, cIndex: number) => (
@@ -194,7 +194,7 @@ export default function TakeQuiz() {
           {quiz.questions.map((q: any) => (
             <div key={q._id} className="border p-3 mb-3">
               <strong>{q.title}</strong>
-              <p>{q.questionText}</p>
+              <div dangerouslySetInnerHTML={{ __html: q.questionText }} />
 
               {q.type === "multiple-choice" &&
                 q.choices.map((choice: string, cIndex: number) => (

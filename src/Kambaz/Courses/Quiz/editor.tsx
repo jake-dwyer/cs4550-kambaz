@@ -4,6 +4,8 @@ import { Button, Nav, Form } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import * as quizClient from "./client";
 import { addQuiz, updateQuiz } from "./reducer";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 export default function Editor() {
   const { cid, qid } = useParams();
@@ -78,6 +80,11 @@ export default function Editor() {
     setQuiz({ ...quiz, questions: [...quiz.questions, newQuestion] });
   };
 
+  const handleRemoveQuestion = (index: number) => {
+    const updatedQuestions = quiz.questions.filter((_, i) => i !== index);
+    setQuiz({ ...quiz, questions: updatedQuestions });
+  };
+
   const handleQuestionChange = (index: number, updatedQuestion: any) => {
     const updatedQuestions = quiz.questions.map((q: any, i: number) =>
       i === index ? updatedQuestion : q
@@ -107,19 +114,17 @@ export default function Editor() {
             value={quiz.title}
             onChange={(e) => setQuiz({ ...quiz, title: e.target.value })}
           />
-          <textarea
-            className="form-control mt-2"
-            rows={4}
-            value={quiz.description}
-            onChange={(e) => setQuiz({ ...quiz, description: e.target.value })}
-          />
-          <label className="form-label mt-3">Points</label>
-          <input
-            type="number"
-            className="form-control"
-            value={quiz.points}
-            onChange={(e) => setQuiz({ ...quiz, points: parseInt(e.target.value || "0") })}
-          />
+        <Form.Label className="mt-2">Description</Form.Label>
+        <ReactQuill
+          theme="snow"
+          value={quiz.description}
+          onChange={(value) => setQuiz({ ...quiz, description: value })}
+          className="bg-white"
+        />
+        <Form.Label className="mt-3">Total Points</Form.Label>
+        <div className="form-control-plaintext">
+          {quiz.questions.reduce((sum: number, q: any) => sum + (q.points || 0), 0)}
+        </div>
           <label className="form-label mt-3">Due Date</label>
           <input
             type="date"
@@ -150,6 +155,72 @@ export default function Editor() {
 
           <div className="mt-4">
             <h5>Settings</h5>
+            <Form.Label className="mt-2">Quiz Type</Form.Label>
+            <Form.Select
+              value={quiz.quizType}
+              onChange={(e) => setQuiz({ ...quiz, quizType: e.target.value })}
+            >
+              <option value="Graded Quiz">Graded Quiz</option>
+              <option value="Practice Quiz">Practice Quiz</option>
+              <option value="Graded Survey">Graded Survey</option>
+              <option value="Ungraded Survey">Ungraded Survey</option>
+            </Form.Select>
+
+            <Form.Label className="mt-2">Assignment Group</Form.Label>
+            <Form.Select
+              value={quiz.assignmentGroup}
+              onChange={(e) => setQuiz({ ...quiz, assignmentGroup: e.target.value })}
+            >
+              <option value="Quizzes">Quizzes</option>
+              <option value="Exams">Exams</option>
+              <option value="Assignments">Assignments</option>
+              <option value="Project">Project</option>
+            </Form.Select>
+
+            <Form.Check
+              type="checkbox"
+              label="Lock Questions After Answering"
+              checked={quiz.settings.lockAfterAnswering}
+              onChange={(e) =>
+                setQuiz({
+                  ...quiz,
+                  settings: {
+                    ...quiz.settings,
+                    lockAfterAnswering: e.target.checked,
+                  },
+                })
+              }
+            />
+
+            <Form.Check
+              type="checkbox"
+              label="Show Correct Answers"
+              checked={quiz.settings.showCorrectAnswers}
+              onChange={(e) =>
+                setQuiz({
+                  ...quiz,
+                  settings: {
+                    ...quiz.settings,
+                    showCorrectAnswers: e.target.checked,
+                  },
+                })
+              }
+            />
+
+            <Form.Check
+              type="checkbox"
+              label="Webcam Required"
+              checked={quiz.settings.webcamRequired}
+              onChange={(e) =>
+                setQuiz({
+                  ...quiz,
+                  settings: {
+                    ...quiz.settings,
+                    webcamRequired: e.target.checked,
+                  },
+                })
+              }
+            />
             <Form.Check
               type="checkbox"
               label="Shuffle Answers"
@@ -186,6 +257,20 @@ export default function Editor() {
                 setQuiz({ ...quiz, settings: { ...quiz.settings, accessCode: e.target.value } })
               }
             />
+            <Form.Check
+              type="checkbox"
+              label="One Question at a Time"
+              checked={quiz.settings.oneQuestionAtATime}
+              onChange={(e) =>
+                setQuiz({
+                  ...quiz,
+                  settings: {
+                    ...quiz.settings,
+                    oneQuestionAtATime: e.target.checked,
+                  },
+                })
+              }
+            />
           </div>
         </>
       ) : (
@@ -195,15 +280,22 @@ export default function Editor() {
           </Button>
           {quiz.questions.map((q: any, index: number) => (
             <div key={index} className="border p-3 mb-3">
-              <Form.Control
-                type="text"
-                placeholder="Question Title"
-                className="mb-2"
-                value={q.title}
-                onChange={(e) =>
-                  handleQuestionChange(index, { ...q, title: e.target.value })
-                }
-              />
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <Form.Control
+                  type="text"
+                  placeholder="Question Title"
+                  className="me-2"
+                  value={q.title}
+                  onChange={(e) => handleQuestionChange(index, { ...q, title: e.target.value })}
+                />
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => handleRemoveQuestion(index)}
+                >
+                  ✕
+                </Button>
+              </div>
               <Form.Select
                 className="mb-2"
                 value={q.type}
@@ -213,24 +305,20 @@ export default function Editor() {
                 <option value="true-false">True/False</option>
                 <option value="fill-in-the-blank">Fill in the Blank</option>
               </Form.Select>
-              <Form.Control
-                as="textarea"
-                rows={2}
-                placeholder="Question Text"
-                className="mb-2"
-                value={q.questionText || ""}
-                onChange={(e) =>
-                  handleQuestionChange(index, { ...q, questionText: e.target.value })
-                }
-              />
+              <div className="mb-2">
+                <Form.Label>Question Text</Form.Label>
+                <ReactQuill
+                  theme="snow"
+                  value={q.questionText || ""}
+                  onChange={(val) => handleQuestionChange(index, { ...q, questionText: val })}
+                />
+              </div>
               <Form.Control
                 type="number"
                 placeholder="Points"
                 className="mb-2"
                 value={q.points || 1}
-                onChange={(e) =>
-                  handleQuestionChange(index, { ...q, points: parseInt(e.target.value || "1") })
-                }
+                onChange={(e) => handleQuestionChange(index, { ...q, points: parseInt(e.target.value || "1") })}
               />
               {q.type === "multiple-choice" && (
                 <>
@@ -245,14 +333,31 @@ export default function Editor() {
                           handleQuestionChange(index, { ...q, correctChoiceIndex: cIndex })
                         }
                       />
-                      <Form.Control
-                        value={choice}
-                        onChange={(e) => {
-                          const newChoices = [...q.choices];
-                          newChoices[cIndex] = e.target.value;
-                          handleQuestionChange(index, { ...q, choices: newChoices });
-                        }}
-                      />
+                      <div className="d-flex align-items-center w-100">
+                        <Form.Control
+                          className="me-2"
+                          value={choice}
+                          onChange={(e) => {
+                            const newChoices = [...q.choices];
+                            newChoices[cIndex] = e.target.value;
+                            handleQuestionChange(index, { ...q, choices: newChoices });
+                          }}
+                        />
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => {
+                            const newChoices = q.choices.filter((_, i) => i !== cIndex);
+                            handleQuestionChange(index, {
+                              ...q,
+                              choices: newChoices,
+                              correctChoiceIndex: q.correctChoiceIndex >= newChoices.length ? 0 : q.correctChoiceIndex,
+                            });
+                          }}
+                        >
+                          ✕
+                        </Button>
+                      </div>
                     </div>
                   ))}
                   <Button
@@ -281,16 +386,27 @@ export default function Editor() {
               {q.type === "fill-in-the-blank" && (
                 <>
                   {(q.possibleAnswers || []).map((ans: string, aIndex: number) => (
-                    <Form.Control
-                      key={aIndex}
-                      className="mb-2"
-                      value={ans}
-                      onChange={(e) => {
-                        const updated = [...(q.possibleAnswers || [])];
-                        updated[aIndex] = e.target.value;
-                        handleQuestionChange(index, { ...q, possibleAnswers: updated });
-                      }}
-                    />
+                    <div className="d-flex align-items-center mb-2" key={aIndex}>
+                      <Form.Control
+                        className="me-2"
+                        value={ans}
+                        onChange={(e) => {
+                          const updated = [...(q.possibleAnswers || [])];
+                          updated[aIndex] = e.target.value;
+                          handleQuestionChange(index, { ...q, possibleAnswers: updated });
+                        }}
+                      />
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => {
+                          const updated = (q.possibleAnswers || []).filter((_, i) => i !== aIndex);
+                          handleQuestionChange(index, { ...q, possibleAnswers: updated });
+                        }}
+                      >
+                        ✕
+                      </Button>
+                    </div>
                   ))}
                   <Button
                     size="sm"
@@ -316,6 +432,31 @@ export default function Editor() {
         </Button>
         <Button className="ms-2" variant="danger" onClick={handleSave}>
           Save
+        </Button>
+        <Button
+          className="ms-2"
+          variant="success"
+          onClick={async () => {
+            try {
+              const updatedQuiz = { ...quiz, published: true };
+
+              let finalQuiz;
+              if (existingQuiz) {
+                finalQuiz = await quizClient.updateQuiz(updatedQuiz);
+                dispatch(updateQuiz(finalQuiz));
+              } else {
+                finalQuiz = await quizClient.createQuiz(cid!, updatedQuiz);
+                dispatch(addQuiz(finalQuiz));
+              }
+
+              await quizClient.publishQuiz(finalQuiz._id, true);
+              navigate(`/Kambaz/Courses/${cid}/Quizzes`);
+            } catch (err) {
+              console.error("❌ Error saving & publishing quiz:", err);
+            }
+          }}
+        >
+          Save & Publish
         </Button>
       </div>
     </div>
