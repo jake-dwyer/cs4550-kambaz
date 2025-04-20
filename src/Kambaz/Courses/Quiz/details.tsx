@@ -59,10 +59,21 @@ export default function QuizDetails() {
       <h2>{quiz.title}</h2>
       <div className="mb-3" dangerouslySetInnerHTML={{ __html: quiz.description }} />
 
-      <p><strong>Points:</strong> {quiz.points}</p>
+      <p><strong>Type:</strong> {quiz.quizType}</p>
+      <p><strong>Assignment Group:</strong> {quiz.assignmentGroup}</p>
+      <p><strong>Points:</strong> {quiz.questions.reduce((sum: number, q: any) => sum + (q.points || 0), 0)}</p>
       <p><strong>Due:</strong> {quiz.availability?.dueDate?.slice(0, 10) || "N/A"}</p>
       <p><strong>Available:</strong> {quiz.availability?.availableFrom?.slice(0, 10) || "N/A"} - {quiz.availability?.availableUntil?.slice(0, 10) || "N/A"}</p>
       <p><strong>Attempts Left:</strong> {remainingAttempts}</p>
+      <p><strong>Access Code:</strong> {quiz.settings?.accessCode || "None"}</p>
+      <p><strong>Shuffle Answers:</strong> {quiz.settings?.shuffleAnswers ? "Yes" : "No"}</p>
+      <p><strong>Time Limit:</strong> {quiz.settings?.timeLimit || 0} minutes</p>
+      <p><strong>Multiple Attempts:</strong> {quiz.settings?.multipleAttempts ? `Yes (${quiz.settings?.howManyAttempts})` : "No"}</p>
+      <p><strong>Show Correct Answers:</strong> {quiz.settings?.showCorrectAnswers ? "Yes" : "No"}</p>
+      <p><strong>One Question at a Time:</strong> {quiz.settings?.oneQuestionAtATime ? "Yes" : "No"}</p>
+      <p><strong>Webcam Required:</strong> {quiz.settings?.webcamRequired ? "Yes" : "No"}</p>
+      <p><strong>Lock Questions After Answering:</strong> {quiz.settings?.lockAfterAnswering ? "Yes" : "No"}</p>
+
       {userAttempts.length > 0 && (
         <p><strong>Your Last Score:</strong> {latestScore}</p>
       )}
@@ -107,7 +118,7 @@ export default function QuizDetails() {
             return (
               <div key={q._id} className="border p-3 mb-3">
                 <strong>{q.title}</strong>
-                <p>{q.questionText}</p>
+                <p dangerouslySetInnerHTML={{ __html: q.questionText }} />
 
                 <p><strong>Your Answer:</strong> {q.type === "multiple-choice" ? q.choices[answer] : answer?.toString()}</p>
                 <p className={isCorrect ? "text-success" : "text-danger"}>{isCorrect ? "✔ Correct" : "✘ Incorrect"}</p>
