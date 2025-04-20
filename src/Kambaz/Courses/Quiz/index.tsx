@@ -26,7 +26,7 @@ export default function Quizzes() {
         dispatch(setQuizzes(response));
         setError(false);
       } catch (err) {
-        console.error("❌ Failed to fetch quizzes:", err);
+        console.error("Failed to fetch quizzes:", err);
         setError(true);
       } finally {
         setLoading(false);

@@ -64,7 +64,7 @@ export default function Editor() {
       }
       navigate(`/Kambaz/Courses/${cid}/Quizzes`);
     } catch (err) {
-      console.error("❌ Error saving quiz:", err);
+      console.error("Error saving quiz:", err);
     }
   };
 
@@ -371,6 +371,25 @@ export default function Editor() {
                   >
                     + Add Choice
                   </Button>
+{/*  If we wanted a save button per problem we'd just do this             
+                    <Button
+                    size="sm"
+                    className="mt-2"
+                    variant="outline-primary"
+                    onClick={async () => {
+                      try {
+                        const updatedQuiz = {
+                          ...quiz,
+                          questions: [...quiz.questions],
+                        };
+                        await quizClient.updateQuiz(updatedQuiz);
+                      } catch (err) {
+                        console.error("Error saving individual question:", err);
+                      }
+                    }}
+                  >
+                    Save Question
+                  </Button> */}
                 </>
               )}
               {q.type === "true-false" && (
@@ -452,7 +471,7 @@ export default function Editor() {
               await quizClient.publishQuiz(finalQuiz._id, true);
               navigate(`/Kambaz/Courses/${cid}/Quizzes`);
             } catch (err) {
-              console.error("❌ Error saving & publishing quiz:", err);
+              console.error("Error saving & publishing quiz:", err);
             }
           }}
         >

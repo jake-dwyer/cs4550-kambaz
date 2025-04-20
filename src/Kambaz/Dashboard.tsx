@@ -85,7 +85,7 @@ export default function Dashboard() {
       const updated = await enrollmentClient.findEnrollmentsForUser(currentUser._id);
       dispatch(setEnrollments(updated));
     } catch (err) {
-      console.error("🔥 Enrollment error:", err);
+      console.error("Enrollment error:", err);
     }
   };  
 
